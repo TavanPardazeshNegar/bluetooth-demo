@@ -24,7 +24,7 @@ import com.voltacontrol.bluetooth.demo.ui.theme.BluetoothDemoTheme
 
 
 @Composable
-fun MainUI(
+fun BluetoothCommunication(
     indicatorColor: Color,
     status: Statuses,
     hashTagInput: String,
