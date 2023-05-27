@@ -140,7 +140,7 @@ class BluetoothConnectionActivity : ComponentActivity() {
     private fun checkBluetoothPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             this,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R)
                 Manifest.permission.BLUETOOTH_CONNECT
             else
                 Manifest.permission.BLUETOOTH
@@ -150,7 +150,7 @@ class BluetoothConnectionActivity : ComponentActivity() {
 
     private fun requestPermissionBluetooth() {
         bluetoothPermissionLauncher.launch(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R)
                 arrayOf(
                     Manifest.permission.BLUETOOTH,
                     Manifest.permission.BLUETOOTH_CONNECT
