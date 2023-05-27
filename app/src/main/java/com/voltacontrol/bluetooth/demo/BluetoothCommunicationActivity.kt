@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.voltacontrol.bluetooth.demo.ui.pages.BluetoothCommunication
 import com.voltacontrol.bluetooth.demo.ui.theme.BluetoothDemoTheme
 
-class MainActivity : ComponentActivity() {
+class BluetoothCommunicationActivity : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private val currentStatus = mutableStateOf(Statuses.Start)

@@ -94,7 +94,7 @@ class BluetoothConnectionActivity : ComponentActivity() {
     }
 
     private fun openCommunicationPage() {
-        val intent = Intent(this, BluetoothConnectionActivity::class.java)
+        val intent = Intent(this, BluetoothCommunicationActivity::class.java)
         startActivity(intent)
     }
 
@@ -109,7 +109,7 @@ class BluetoothConnectionActivity : ComponentActivity() {
     private fun checkBluetoothPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             this,
-            Manifest.permission.BLUETOOTH_CONNECT
+            Manifest.permission.BLUETOOTH
         ) == PackageManager.PERMISSION_GRANTED
     }
 
