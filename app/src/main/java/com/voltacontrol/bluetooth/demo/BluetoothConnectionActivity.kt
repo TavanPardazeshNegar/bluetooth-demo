@@ -4,11 +4,13 @@ import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -18,6 +20,11 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.MutableLiveData
 import com.voltacontrol.bluetooth.demo.ui.pages.BluetoothConnection
 import com.voltacontrol.bluetooth.demo.ui.theme.BluetoothDemoTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class BluetoothConnectionActivity : ComponentActivity() {
@@ -75,22 +82,46 @@ class BluetoothConnectionActivity : ComponentActivity() {
                     bluetoothIsOn = bluetoothIsOn,
                     pairedList = pairedList.value,
                     onBluetoothStatusChange = { turnOnBluetooth() },
-                    onDeviceSelect = { device -> createSocket(device) })
+                    onDeviceSelect = { device -> createConnection(device) })
             }
         }
     }
 
-    private fun createSocket(device: BluetoothDevice) {
+    private fun createConnection(_device: BluetoothDevice) {
         if (!checkBluetoothPermission()) {
             requestPermissionBluetooth()
             return
         }
 
-        val socket = device.createRfcommSocketToServiceRecord(UUID.randomUUID())
+        val device = bluetoothAdapter.getRemoteDevice(_device.address)
 
+        val socket = try {
+            val method = device::class.java.getMethod("createRfcommSocketToServiceRecord")
+            method.isAccessible = true
+            method.invoke(device, UUID.randomUUID()) as BluetoothSocket
+        } catch (e: Exception) {
+            device.createRfcommSocketToServiceRecord(UUID.randomUUID())
+        }
+
+        CoroutineScope(IO).launch {
+            try {
+                socket.connect()
+                App.socket = socket
+                withContext(Main) {
+                    openCommunicationPage()
+                }
+            } catch (e: Exception) {
+                Log.e("BCAct", e.message ?: "")
+            }
+        }
+
+    }
+
+    private fun manageMyConnectedSocket(socket: BluetoothSocket) {
         App.socket = socket
-
+        //withContext(Main) {
         openCommunicationPage()
+        //}
     }
 
     private fun openCommunicationPage() {
@@ -117,6 +148,7 @@ class BluetoothConnectionActivity : ComponentActivity() {
         bluetoothPermissionLauncher.launch(
             arrayOf(
                 Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.BLUETOOTH_CONNECT,
             )
         )
