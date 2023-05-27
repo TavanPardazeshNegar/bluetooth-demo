@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -24,6 +25,7 @@ import androidx.lifecycle.MutableLiveData
 @SuppressLint("MissingPermission")
 @Composable
 fun BluetoothConnection(
+    selectedDevice:BluetoothDevice?,
     bluetoothIsOn: MutableLiveData<Boolean>,
     pairedList: Set<BluetoothDevice>?,
     onBluetoothStatusChange: () -> Unit,
@@ -87,6 +89,8 @@ fun BluetoothConnection(
                                 text = device.address ?: "",
                                 style = MaterialTheme.typography.caption
                             )
+                            if(selectedDevice?.address == device.address)
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                             Spacer(
                                 modifier = Modifier
                                     .fillMaxWidth()

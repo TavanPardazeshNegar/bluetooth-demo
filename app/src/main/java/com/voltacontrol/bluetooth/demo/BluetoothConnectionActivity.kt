@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -31,6 +32,7 @@ class BluetoothConnectionActivity : ComponentActivity() {
 
     private val bluetoothIsOn = MutableLiveData(false)
     private val pairedList = mutableStateOf<Set<BluetoothDevice>?>(null)
+    private val selectedDevice = mutableStateOf<BluetoothDevice?>(null)
 
     private lateinit var bluetoothPermissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -79,10 +81,15 @@ class BluetoothConnectionActivity : ComponentActivity() {
         setContent {
             BluetoothDemoTheme {
                 BluetoothConnection(
+                    selectedDevice = selectedDevice.value,
                     bluetoothIsOn = bluetoothIsOn,
                     pairedList = pairedList.value,
                     onBluetoothStatusChange = { turnOnBluetooth() },
-                    onDeviceSelect = { device -> createConnection(device) })
+                    onDeviceSelect = { device ->
+                        selectedDevice.value = device; createConnection(
+                        device
+                    )
+                    })
             }
         }
     }
@@ -112,16 +119,17 @@ class BluetoothConnectionActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("BCAct", e.message ?: "")
+                withContext(Main) {
+                    Toast.makeText(
+                        this@BluetoothConnectionActivity,
+                        "error when creating socket with target device",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                selectedDevice.value = null
             }
         }
 
-    }
-
-    private fun manageMyConnectedSocket(socket: BluetoothSocket) {
-        App.socket = socket
-        //withContext(Main) {
-        openCommunicationPage()
-        //}
     }
 
     private fun openCommunicationPage() {
