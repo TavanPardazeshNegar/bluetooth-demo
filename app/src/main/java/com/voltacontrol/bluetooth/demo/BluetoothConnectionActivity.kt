@@ -101,13 +101,16 @@ class BluetoothConnectionActivity : ComponentActivity() {
         }
 
         val device = bluetoothAdapter.getRemoteDevice(_device.address)
+        val uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
+
+        bluetoothAdapter.cancelDiscovery()
 
         val socket = try {
-            val method = device::class.java.getMethod("createRfcommSocketToServiceRecord")
+            val method = device::class.java.getMethod("createInsecureRfcommSocketToServiceRecord")
             method.isAccessible = true
-            method.invoke(device, UUID.randomUUID()) as BluetoothSocket
+            method.invoke(device, uuid) as BluetoothSocket
         } catch (e: Exception) {
-            device.createRfcommSocketToServiceRecord(UUID.randomUUID())
+            device.createInsecureRfcommSocketToServiceRecord(uuid)
         }
 
         CoroutineScope(IO).launch {
